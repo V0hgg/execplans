@@ -1,3 +1,12 @@
+## [0.1.4](https://github.com/V0hgg/execplans/compare/v0.1.3...v0.1.4) (2026-02-12)
+
+
+### Bug Fixes
+
+* add package repository metadata for npm provenance ([4c7155c](https://github.com/V0hgg/execplans/commit/4c7155c50c71e337c65faefed873d2239ce73ef2))
+
+
+
 ## [0.1.3](https://github.com/V0hgg/execplans/compare/v0.1.2...v0.1.3) (2026-02-12)
 
 
