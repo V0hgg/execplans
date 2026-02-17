@@ -1,6 +1,6 @@
 {
   "name": "execplans",
-  "version": "0.1.4",
+  "version": "0.2.0",
   "description": "Scaffold and validate ExecPlan workflows for AI coding assistants",
   "license": "MIT",
   "repository": {
