@@ -1,0 +1,9 @@
+{
+  "name": "dummy-e2e-app",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Isolated fixture used by codex-promax full functional e2e test",
+  "scripts": {
+    "dev": "python3 -m http.server 3000 --bind 127.0.0.1"
+  }
+}

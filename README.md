@@ -7,6 +7,8 @@ Scaffold and validate ExecPlan workflows for AI coding assistants.
 ```bash
 npm install
 npm run ci
+# optional full functional check (docker required)
+npm run test:e2e
 ```
 
 ## CLI

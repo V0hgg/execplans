@@ -25,6 +25,8 @@
     "ci": "npm run typecheck && npm test && npm run build",
     "build": "tsc -p tsconfig.json",
     "test": "vitest run",
+    "test:e2e": "bash test/e2e/full-functional.sh",
+    "test:e2e:npm": "INSTALL_MODE=npm bash test/e2e/full-functional.sh",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "changelog": "conventional-changelog -p angular -i CHANGELOG.md -s",
     "release:check": "npm pack --dry-run",
