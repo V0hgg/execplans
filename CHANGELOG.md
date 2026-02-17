@@ -1,3 +1,12 @@
+## [0.2.2](https://github.com/V0hgg/codex-promax/compare/v0.2.1...v0.2.2) (2026-02-17)
+
+
+### Features
+
+* add full functional e2e verification harness ([98b0b69](https://github.com/V0hgg/codex-promax/commit/98b0b696dc1eb6bbf6e20b9bdb861667ae1f1d23))
+
+
+
 ## [0.2.1](https://github.com/V0hgg/codex-promax/compare/v0.2.0...v0.2.1) (2026-02-17)
 
 
