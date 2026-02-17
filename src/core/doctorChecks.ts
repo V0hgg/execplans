@@ -76,21 +76,21 @@ export function runDoctorChecks(options: DoctorCheckOptions): string[] {
   const fixes: string[] = [];
 
   if (!fs.existsSync(options.plansFilePath)) {
-    fixes.push(`Fix: Create ${options.plansFilePath} (run \`execplans init\`).`);
+    fixes.push(`Fix: Create ${options.plansFilePath} (run \`codex-promax init\`).`);
   }
 
   if (!fs.existsSync(options.execplansDirPath)) {
-    fixes.push(`Fix: Create ${options.execplansDirPath} directory (run \`execplans init\`).`);
+    fixes.push(`Fix: Create ${options.execplansDirPath} directory (run \`codex-promax init\`).`);
   }
 
   if (options.checkAgentsFile) {
     if (!fs.existsSync(options.agentsFilePath)) {
-      fixes.push(`Fix: Create ${options.agentsFilePath} with execplans managed block (run \`execplans init\`).`);
+      fixes.push(`Fix: Create ${options.agentsFilePath} with execplans managed block (run \`codex-promax init\`).`);
     } else {
       const content = fs.readFileSync(options.agentsFilePath, "utf8");
       if (!hasManagedMarkers(content)) {
         fixes.push(
-          `Fix: Add ${MANAGED_BEGIN} and ${MANAGED_END} markers to ${options.agentsFilePath} (or rerun \`execplans init\`).`,
+          `Fix: Add ${MANAGED_BEGIN} and ${MANAGED_END} markers to ${options.agentsFilePath} (or rerun \`codex-promax init\`).`,
         );
       }
     }
@@ -98,12 +98,12 @@ export function runDoctorChecks(options: DoctorCheckOptions): string[] {
 
   if (options.checkClaudeFile) {
     if (!fs.existsSync(options.claudeFilePath)) {
-      fixes.push(`Fix: Create ${options.claudeFilePath} with execplans managed block (run \`execplans init\`).`);
+      fixes.push(`Fix: Create ${options.claudeFilePath} with execplans managed block (run \`codex-promax init\`).`);
     } else {
       const content = fs.readFileSync(options.claudeFilePath, "utf8");
       if (!hasManagedMarkers(content)) {
         fixes.push(
-          `Fix: Add ${MANAGED_BEGIN} and ${MANAGED_END} markers to ${options.claudeFilePath} (or rerun \`execplans init\`).`,
+          `Fix: Add ${MANAGED_BEGIN} and ${MANAGED_END} markers to ${options.claudeFilePath} (or rerun \`codex-promax init\`).`,
         );
       }
     }
@@ -123,7 +123,7 @@ export function runDoctorChecks(options: DoctorCheckOptions): string[] {
 
     for (const skillPath of skillFiles) {
       if (!fs.existsSync(skillPath)) {
-        fixes.push(`Fix: Create ${skillPath} (run \`execplans init\`).`);
+        fixes.push(`Fix: Create ${skillPath} (run \`codex-promax init\`).`);
         continue;
       }
 
@@ -151,7 +151,7 @@ export function runDoctorChecks(options: DoctorCheckOptions): string[] {
     for (const relativePath of CODEX_MAX_REQUIRED_RELATIVE_PATHS) {
       const absolutePath = path.resolve(options.root, relativePath);
       if (!fs.existsSync(absolutePath)) {
-        fixes.push(`Fix: Create ${absolutePath} (run \`execplans init --preset codex-max\`).`);
+        fixes.push(`Fix: Create ${absolutePath} (run \`codex-promax init --preset codex-max\`).`);
       }
     }
 
@@ -160,13 +160,13 @@ export function runDoctorChecks(options: DoctorCheckOptions): string[] {
       const codexConfig = fs.readFileSync(codexConfigPath, "utf8");
       if (!codexConfig.includes("[mcp_servers.chrome_devtools]")) {
         fixes.push(
-          `Fix: Add [mcp_servers.chrome_devtools] block to ${codexConfigPath} (or rerun \`execplans init --preset codex-max\`).`,
+          `Fix: Add [mcp_servers.chrome_devtools] block to ${codexConfigPath} (or rerun \`codex-promax init --preset codex-max\`).`,
         );
       }
 
       if (!codexConfig.includes("[mcp_servers.observability]")) {
         fixes.push(
-          `Fix: Add [mcp_servers.observability] block to ${codexConfigPath} (or rerun \`execplans init --preset codex-max\`).`,
+          `Fix: Add [mcp_servers.observability] block to ${codexConfigPath} (or rerun \`codex-promax init --preset codex-max\`).`,
         );
       }
     }

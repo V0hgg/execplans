@@ -48,7 +48,7 @@ async function main(): Promise<void> {
 
   const program = new Command();
   program
-    .name("execplans")
+    .name("codex-promax")
     .description("Scaffold and validate ExecPlan workflows")
     .version(packageVersion)
     .showHelpAfterError();

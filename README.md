@@ -1,4 +1,4 @@
-# execplans
+# codex-promax
 
 Scaffold and validate ExecPlan workflows for AI coding assistants.
 
@@ -12,14 +12,14 @@ npm run ci
 ## CLI
 
 ```bash
-npx -y execplans@latest init
+npx -y codex-promax@latest init
 ```
 
 Or after global install:
 
 ```bash
-npm i -g execplans
-execplans init
+npm i -g codex-promax
+codex-promax init
 ```
 
 ## Codex-max preset
@@ -27,7 +27,7 @@ execplans init
 Use the `codex-max` preset to scaffold the expanded docs structure and Codex harness files:
 
 ```bash
-execplans init --preset codex-max
+codex-promax init --preset codex-max
 ```
 
 After scaffold, boot the worktree-local runtime used by UI legibility workflows:
@@ -42,7 +42,7 @@ After scaffold, boot the worktree-local runtime used by UI legibility workflows:
 Validate codex-max scaffold health:
 
 ```bash
-execplans doctor --preset codex-max
+codex-promax doctor --preset codex-max
 ```
 
 Run local observability smoke checks (requires Docker daemon access):
