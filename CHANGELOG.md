@@ -1,3 +1,13 @@
+## [0.2.4](https://github.com/V0hgg/codex-promax/compare/v0.2.3...v0.2.4) (2026-02-17)
+
+
+### Features
+
+* add codex observability runbook and validation prompts ([5632c39](https://github.com/V0hgg/codex-promax/commit/5632c3961d2ae9607357c914c8567833ff35fb6d))
+* switch runbook prompt to natural readiness validation ([1b2d344](https://github.com/V0hgg/codex-promax/commit/1b2d344d59b310ebeda09b77abacb06b4eed8234))
+
+
+
 ## [0.2.3](https://github.com/V0hgg/codex-promax/compare/v0.2.2...v0.2.3) (2026-02-17)
 
 
