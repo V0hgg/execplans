@@ -22,6 +22,23 @@ npm i -g execplans
 execplans init
 ```
 
+## Codex-max preset
+
+Use the `codex-max` preset to scaffold the expanded docs structure and Codex harness files:
+
+```bash
+execplans init --preset codex-max
+```
+
+After scaffold, boot the worktree-local runtime used by UI legibility workflows:
+
+```bash
+.agent/harness/worktree/up.sh
+.agent/harness/worktree/status.sh
+# when finished
+.agent/harness/worktree/down.sh
+```
+
 ## Release workflow
 
 - CI runs on pull requests and pushes to `main` via `.github/workflows/ci.yml`.

@@ -1,2 +1,13 @@
-# Codex-max preset bootstrap.
-# Milestone 1 placeholder; expanded MCP server definitions are added in later milestones.
+# Codex project-scoped configuration for the codex-max preset.
+# This file is committed in each target repository so setup is reproducible.
+
+[mcp_servers.chrome_devtools]
+command = "npx"
+args = ["-y", "chrome-devtools-mcp@latest"]
+cwd = "."
+startup_timeout_sec = 20
+tool_timeout_sec = 60
+required = false
+
+[mcp_servers.chrome_devtools.env]
+CHROME_MCP_HEADLESS = "true"

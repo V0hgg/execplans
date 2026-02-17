@@ -28,7 +28,7 @@ This plan is complete when all of the following are true and proven with command
 - [x] (2026-02-17 09:04Z) Drafted a complete, self-contained ExecPlan with milestones, validation commands, and explicit Definition of Done.
 - [x] (2026-02-17 09:17Z) Implemented Milestone 1: added preset parsing (`standard`, `codex-max`), CLI/config wiring for `--preset`, template-tree copy utility, init preset dispatch, and codex-max dry-run proof (`Would Create: .codex/config.toml`).
 - [x] (2026-02-17 09:18Z) Implemented Milestone 2: added codex-max `ARCHITECTURE.md` and full `docs/` template topology, plus init tests for path presence and codex-max idempotence.
-- [ ] Implement Milestone 3 (worktree-local UI legibility harness with Chrome DevTools MCP wiring and skills).
+- [x] (2026-02-17 09:21Z) Implemented Milestone 3: added Chrome DevTools MCP config, worktree `up/down/status` scripts, and `ui-legibility` skill scaffold; validated with build + fresh-repo MCP/skill grep checks and runtime script smoke.
 - [ ] Implement Milestone 4 (worktree-local observability stack and observability MCP adapter).
 - [ ] Implement Milestone 5 (doctor coverage, README/docs updates, and automated tests).
 - [ ] Implement Milestone 6 (cross-repo installation proof and final acceptance evidence).
@@ -49,6 +49,9 @@ This plan is complete when all of the following are true and proven with command
 
 - Observation: Empty milestone directories (`docs/exec-plans/active` and `docs/exec-plans/completed`) must include placeholder files to remain visible in generated tree validations.
   Evidence: `.gitkeep` files appeared in `find ... -type f` output and made directory existence check deterministic.
+
+- Observation: Worktree helper scripts must derive repository root from script location, not caller working directory, or they can write runtime state into the wrong repository.
+  Evidence: Initial verification run wrote state under `/Users/hunter/v0hgg/execplans/.agent/harness/state`; after fixing `common.sh` root resolution, state moved correctly under the scaffolded temp repo path.
 
 ## Decision Log
 
@@ -76,9 +79,13 @@ This plan is complete when all of the following are true and proven with command
   Rationale: This gives novices immediate orientation while avoiding opinionated content that would drift from project-specific reality.
   Date/Author: 2026-02-17 / Codex
 
+- Decision: Default worktree runtime script behavior uses a simple local `python3 -m http.server` fallback and allows override through `.agent/harness/worktree/app-start.sh`.
+  Rationale: This guarantees an immediately bootable per-worktree workflow for novices while preserving a clear upgrade path to project-specific app startup.
+  Date/Author: 2026-02-17 / Codex
+
 ## Outcomes & Retrospective
 
-Milestones 1 and 2 are complete. The scaffold can now materialize the requested docs topology in a fresh repository through `--preset codex-max`, and reruns remain idempotent without `--force`. Validation evidence includes passing `test/init.test.ts`, successful build, and a clean temp-repo `find` output listing all expected docs files.
+Milestones 1 through 3 are complete. The scaffold now generates UI-legibility prerequisites end-to-end: project-scoped Chrome DevTools MCP config, worktree runtime lifecycle scripts, and a UI skill document. Validation evidence includes passing `test/init.test.ts`, successful build, fresh-repo grep checks for MCP/DOM/screenshot/navigation content, and working `up/status/down` script execution in a scaffolded temp repo.
 
 ## Context and Orientation
 
@@ -363,3 +370,4 @@ Dependency expectations:
 2026-02-17 (Codex): Initial creation of this ExecPlan to satisfy the requested OpenAI-style harness scaffold scope, including docs topology, MCP wiring, worktree isolation, observability stack, explicit milestone validation commands, and cross-repo installation proof.
 2026-02-17 (Codex): Updated after Milestone 1 implementation to record completed progress, new design decisions, milestone outcomes, and evidence-backed discoveries.
 2026-02-17 (Codex): Updated after Milestone 2 implementation to record docs topology scaffold completion, idempotence coverage, and fresh-repo validation evidence.
+2026-02-17 (Codex): Updated after Milestone 3 implementation and corrected worktree-root bug discovered during runtime script verification.

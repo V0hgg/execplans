@@ -155,11 +155,29 @@ describe("init", () => {
       "docs/QUALITY_SCORE.md",
       "docs/RELIABILITY.md",
       "docs/SECURITY.md",
+      ".agent/harness/worktree/common.sh",
+      ".agent/harness/worktree/up.sh",
+      ".agent/harness/worktree/down.sh",
+      ".agent/harness/worktree/status.sh",
+      ".agent/harness/worktree/app-start.sh",
+      ".agent/harness/state/.gitkeep",
+      ".agents/skills/ui-legibility/SKILL.md",
     ];
 
     for (const relativePath of expectedCodexMaxPaths) {
       expect(fs.existsSync(path.join(root, relativePath))).toBe(true);
     }
+
+    const codexConfig = readFile(root, ".codex/config.toml");
+    expect(codexConfig).toContain("[mcp_servers.chrome_devtools]");
+    expect(codexConfig).toContain("command = \"npx\"");
+
+    const uiSkill = readFile(root, ".agents/skills/ui-legibility/SKILL.md");
+    expect(uiSkill).toContain("DOM snapshots");
+    expect(uiSkill).toContain("screenshots");
+
+    const upStat = fs.statSync(path.join(root, ".agent/harness/worktree/up.sh"));
+    expect((upStat.mode & 0o111) !== 0).toBe(true);
   });
 
   it("shows codex-max preset actions in dry-run", async () => {
