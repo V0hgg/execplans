@@ -1,3 +1,12 @@
+## [0.2.1](https://github.com/V0hgg/codex-promax/compare/v0.2.0...v0.2.1) (2026-02-17)
+
+
+### Features
+
+* rename package and cli to codex-promax ([5c36c24](https://github.com/V0hgg/codex-promax/commit/5c36c2413799a5d9a282259adc4ed139a400892a))
+
+
+
 # [0.2.0](https://github.com/V0hgg/execplans/compare/v0.1.4...v0.2.0) (2026-02-17)
 
 
