@@ -21,6 +21,7 @@ docker compose -f .agent/harness/observability/docker-compose.yml down -v
 
 ## Results
 
+- Ready for Codex coding work: YES/NO
 - Doctor status: PASS/FAIL
 - Smoke logs: PASS/FAIL
 - Smoke metrics: PASS/FAIL

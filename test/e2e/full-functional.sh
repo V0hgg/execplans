@@ -125,8 +125,10 @@ verify_docs_structure() {
 
   grep -q '\[mcp_servers.chrome_devtools\]' "$TARGET_REPO/.codex/config.toml" || fail "Missing chrome_devtools MCP block"
   grep -q '\[mcp_servers.observability\]' "$TARGET_REPO/.codex/config.toml" || fail "Missing observability MCP block"
+  grep -qi 'I just installed codex-promax' "$TARGET_REPO/docs/OBSERVABILITY_RUNBOOK.md" || fail "Runbook missing natural-language validation prompt"
   grep -q 'query_logs' "$TARGET_REPO/docs/OBSERVABILITY_RUNBOOK.md" || fail "Runbook missing MCP query guidance"
   grep -q 'docs/generated/observability-validation.md' "$TARGET_REPO/docs/OBSERVABILITY_RUNBOOK.md" || fail "Runbook missing validation report target"
+  grep -q 'Ready for Codex coding work: YES/NO' "$TARGET_REPO/docs/generated/observability-validation.md" || fail "Validation report missing readiness status field"
 }
 
 main() {
