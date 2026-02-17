@@ -29,9 +29,9 @@ This plan is complete when all of the following are true and proven with command
 - [x] (2026-02-17 09:17Z) Implemented Milestone 1: added preset parsing (`standard`, `codex-max`), CLI/config wiring for `--preset`, template-tree copy utility, init preset dispatch, and codex-max dry-run proof (`Would Create: .codex/config.toml`).
 - [x] (2026-02-17 09:18Z) Implemented Milestone 2: added codex-max `ARCHITECTURE.md` and full `docs/` template topology, plus init tests for path presence and codex-max idempotence.
 - [x] (2026-02-17 09:21Z) Implemented Milestone 3: added Chrome DevTools MCP config, worktree `up/down/status` scripts, and `ui-legibility` skill scaffold; validated with build + fresh-repo MCP/skill grep checks and runtime script smoke.
-- [ ] Implement Milestone 4 (worktree-local observability stack and observability MCP adapter).
-- [ ] Implement Milestone 5 (doctor coverage, README/docs updates, and automated tests).
-- [ ] Implement Milestone 6 (cross-repo installation proof and final acceptance evidence).
+- [ ] (2026-02-17 09:25Z) Implemented Milestone 4 templates for observability stack + MCP adapter (compose/vector/smoke/server), but Docker-based runtime validation remains blocked by unavailable Docker daemon in this environment.
+- [x] (2026-02-17 09:25Z) Implemented Milestone 5: added preset-aware `doctor` checks for codex-max artifacts, added codex-max doctor tests, and updated README validation/troubleshooting commands.
+- [ ] (2026-02-17 09:26Z) Implemented Milestone 6 package/install/init/doctor proof in a second repo; remaining step is Docker smoke execution, blocked by unavailable Docker daemon.
 
 ## Surprises & Discoveries
 
@@ -52,6 +52,12 @@ This plan is complete when all of the following are true and proven with command
 
 - Observation: Worktree helper scripts must derive repository root from script location, not caller working directory, or they can write runtime state into the wrong repository.
   Evidence: Initial verification run wrote state under `/Users/hunter/v0hgg/execplans/.agent/harness/state`; after fixing `common.sh` root resolution, state moved correctly under the scaffolded temp repo path.
+
+- Observation: Docker-dependent observability validation cannot run in this session because the Docker daemon socket is unreachable.
+  Evidence: `docker compose ... up -d` failed with `Cannot connect to the Docker daemon at unix:///Users/hunter/.docker/run/docker.sock`.
+
+- Observation: Cross-repo installation itself works end-to-end from packed tarball, and codex-max doctor passes in the target repo before observability runtime starts.
+  Evidence: `npm pack` produced `execplans-0.1.4.tgz`; `npx --prefix <target_repo> execplans init --preset codex-max` succeeded; `npx --prefix <target_repo> execplans doctor --preset codex-max` returned `OK`.
 
 ## Decision Log
 
@@ -83,9 +89,17 @@ This plan is complete when all of the following are true and proven with command
   Rationale: This guarantees an immediately bootable per-worktree workflow for novices while preserving a clear upgrade path to project-specific app startup.
   Date/Author: 2026-02-17 / Codex
 
+- Decision: Ship an in-repo observability MCP adapter (`server.mjs`) with no external runtime dependencies.
+  Rationale: This keeps target-repo onboarding simple and avoids requiring package install steps before Codex can start the observability MCP server.
+  Date/Author: 2026-02-17 / Codex
+
+- Decision: Treat Docker daemon unavailability as an environment blocker and preserve pending milestones until daemon access exists, instead of weakening acceptance criteria.
+  Rationale: The plan’s Definition of Done explicitly requires live observability smoke checks; skipping them would produce an unverified result.
+  Date/Author: 2026-02-17 / Codex
+
 ## Outcomes & Retrospective
 
-Milestones 1 through 3 are complete. The scaffold now generates UI-legibility prerequisites end-to-end: project-scoped Chrome DevTools MCP config, worktree runtime lifecycle scripts, and a UI skill document. Validation evidence includes passing `test/init.test.ts`, successful build, fresh-repo grep checks for MCP/DOM/screenshot/navigation content, and working `up/status/down` script execution in a scaffolded temp repo.
+Milestones 1 through 6 are implemented as code and non-Docker verification is complete: CI passes, cross-repo install/init/doctor proof passes, and packaged artifact includes the expected templates. The only unmet acceptance criteria are Docker-dependent observability smoke checks (Milestones 4 and 6), blocked by unavailable Docker daemon access in this execution environment.
 
 ## Context and Orientation
 
@@ -303,6 +317,11 @@ Record concise proof snippets during implementation. Replace placeholders below 
     [smoke] metrics query: PASS
     [smoke] traces query: PASS
 
+    npm notice filename: execplans-0.1.4.tgz
+    npx --prefix <target_repo> execplans doctor --root <target_repo> --preset codex-max
+    OK
+    unable to get image 'victoriametrics/victoria-traces:latest': Cannot connect to the Docker daemon at unix:///Users/hunter/.docker/run/docker.sock.
+
 Notes for terminology alignment:
 
 - User-facing query examples may say “PromQL/TraceQL”. Generated docs should explain that MetricsQL is PromQL-compatible and that trace querying is adapted to Victoria-compatible endpoints in this scaffold.
@@ -371,3 +390,5 @@ Dependency expectations:
 2026-02-17 (Codex): Updated after Milestone 1 implementation to record completed progress, new design decisions, milestone outcomes, and evidence-backed discoveries.
 2026-02-17 (Codex): Updated after Milestone 2 implementation to record docs topology scaffold completion, idempotence coverage, and fresh-repo validation evidence.
 2026-02-17 (Codex): Updated after Milestone 3 implementation and corrected worktree-root bug discovered during runtime script verification.
+2026-02-17 (Codex): Updated after Milestones 4 and 5 implementation; recorded Docker daemon blocker that prevents runtime observability proof in this session.
+2026-02-17 (Codex): Updated after Milestone 6 cross-repo packaging/install proof; retained Docker smoke checks as pending due persistent daemon blocker.

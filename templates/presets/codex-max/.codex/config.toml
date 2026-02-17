@@ -11,3 +11,16 @@ required = false
 
 [mcp_servers.chrome_devtools.env]
 CHROME_MCP_HEADLESS = "true"
+
+[mcp_servers.observability]
+command = "node"
+args = [".agent/harness/mcp/observability-server/server.mjs"]
+cwd = "."
+startup_timeout_sec = 20
+tool_timeout_sec = 60
+required = false
+
+[mcp_servers.observability.env]
+OBS_LOGS_URL = "http://127.0.0.1:9428"
+OBS_METRICS_URL = "http://127.0.0.1:8428"
+OBS_TRACES_URL = "http://127.0.0.1:10428"

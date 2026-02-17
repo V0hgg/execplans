@@ -39,6 +39,20 @@ After scaffold, boot the worktree-local runtime used by UI legibility workflows:
 .agent/harness/worktree/down.sh
 ```
 
+Validate codex-max scaffold health:
+
+```bash
+execplans doctor --preset codex-max
+```
+
+Run local observability smoke checks (requires Docker daemon access):
+
+```bash
+docker compose -f .agent/harness/observability/docker-compose.yml up -d
+bash .agent/harness/observability/smoke.sh
+docker compose -f .agent/harness/observability/docker-compose.yml down -v
+```
+
 ## Release workflow
 
 - CI runs on pull requests and pushes to `main` via `.github/workflows/ci.yml`.

@@ -1,0 +1,53 @@
+services:
+  vector:
+    image: timberio/vector:latest-alpine
+    container_name: codex-observability-vector
+    restart: unless-stopped
+    volumes:
+      - ./vector/vector.yaml:/etc/vector/vector.yaml:ro
+    ports:
+      - "8686:8686"
+      - "4318:4318"
+    depends_on:
+      - victoria-logs
+      - victoria-metrics
+      - victoria-traces
+
+  victoria-logs:
+    image: victoriametrics/victoria-logs:v1.45.0
+    container_name: codex-observability-victoria-logs
+    restart: unless-stopped
+    command:
+      - -storageDataPath=/victoria-logs-data
+    volumes:
+      - victoria-logs-data:/victoria-logs-data
+    ports:
+      - "9428:9428"
+
+  victoria-metrics:
+    image: victoriametrics/victoria-metrics:v1.135.0
+    container_name: codex-observability-victoria-metrics
+    restart: unless-stopped
+    command:
+      - -storageDataPath=/victoria-metrics-data
+      - -selfScrapeInterval=5s
+    volumes:
+      - victoria-metrics-data:/victoria-metrics-data
+    ports:
+      - "8428:8428"
+
+  victoria-traces:
+    image: victoriametrics/victoria-traces:latest
+    container_name: codex-observability-victoria-traces
+    restart: unless-stopped
+    command:
+      - -storageDataPath=/victoria-traces-data
+    volumes:
+      - victoria-traces-data:/victoria-traces-data
+    ports:
+      - "10428:10428"
+
+volumes:
+  victoria-logs-data:
+  victoria-metrics-data:
+  victoria-traces-data:

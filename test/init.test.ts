@@ -161,6 +161,12 @@ describe("init", () => {
       ".agent/harness/worktree/status.sh",
       ".agent/harness/worktree/app-start.sh",
       ".agent/harness/state/.gitkeep",
+      ".agent/harness/observability/docker-compose.yml",
+      ".agent/harness/observability/vector/vector.yaml",
+      ".agent/harness/observability/smoke.sh",
+      ".agent/harness/mcp/observability-server/package.json",
+      ".agent/harness/mcp/observability-server/README.md",
+      ".agent/harness/mcp/observability-server/server.mjs",
       ".agents/skills/ui-legibility/SKILL.md",
     ];
 
@@ -170,6 +176,7 @@ describe("init", () => {
 
     const codexConfig = readFile(root, ".codex/config.toml");
     expect(codexConfig).toContain("[mcp_servers.chrome_devtools]");
+    expect(codexConfig).toContain("[mcp_servers.observability]");
     expect(codexConfig).toContain("command = \"npx\"");
 
     const uiSkill = readFile(root, ".agents/skills/ui-legibility/SKILL.md");
@@ -178,6 +185,14 @@ describe("init", () => {
 
     const upStat = fs.statSync(path.join(root, ".agent/harness/worktree/up.sh"));
     expect((upStat.mode & 0o111) !== 0).toBe(true);
+
+    const smokeStat = fs.statSync(path.join(root, ".agent/harness/observability/smoke.sh"));
+    expect((smokeStat.mode & 0o111) !== 0).toBe(true);
+
+    const observabilityServer = readFile(root, ".agent/harness/mcp/observability-server/server.mjs");
+    expect(observabilityServer).toContain("query_logs");
+    expect(observabilityServer).toContain("query_metrics");
+    expect(observabilityServer).toContain("query_traces");
   });
 
   it("shows codex-max preset actions in dry-run", async () => {

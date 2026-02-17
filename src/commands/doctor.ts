@@ -15,6 +15,8 @@ export async function runDoctor(options: CommonOptions, io: DoctorIo = defaultIo
   const config = resolveConfig(options);
 
   const fixes = runDoctorChecks({
+    root: config.root,
+    preset: config.preset,
     plansFilePath: config.plansFilePath,
     execplansDirPath: config.execplansDirPath,
     agentsFilePath: config.agentsFilePath,

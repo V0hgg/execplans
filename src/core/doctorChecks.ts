@@ -1,14 +1,35 @@
 import fs from "node:fs";
+import path from "node:path";
 
 import YAML from "yaml";
 
 import { MANAGED_BEGIN, MANAGED_END } from "./managedBlock";
+import { InitPreset } from "./presets";
 
 const REQUIRED_PLAN_HEADINGS = [
   "## Progress",
   "## Surprises & Discoveries",
   "## Decision Log",
   "## Outcomes & Retrospective",
+];
+
+const CODEX_MAX_REQUIRED_RELATIVE_PATHS = [
+  "ARCHITECTURE.md",
+  ".codex/config.toml",
+  "docs/design-docs/index.md",
+  "docs/exec-plans/tech-debt-tracker.md",
+  "docs/generated/db-schema.md",
+  "docs/product-specs/index.md",
+  "docs/references/design-system-reference-llms.txt",
+  "docs/SECURITY.md",
+  ".agent/harness/worktree/up.sh",
+  ".agent/harness/worktree/down.sh",
+  ".agent/harness/worktree/status.sh",
+  ".agent/harness/observability/docker-compose.yml",
+  ".agent/harness/observability/smoke.sh",
+  ".agent/harness/observability/vector/vector.yaml",
+  ".agent/harness/mcp/observability-server/server.mjs",
+  ".agents/skills/ui-legibility/SKILL.md",
 ];
 
 function hasManagedMarkers(content: string): boolean {
@@ -38,6 +59,8 @@ function parseFrontmatter(filePath: string): Record<string, unknown> | undefined
 }
 
 export interface DoctorCheckOptions {
+  root: string;
+  preset: InitPreset;
   plansFilePath: string;
   execplansDirPath: string;
   agentsFilePath: string;
@@ -120,6 +143,31 @@ export function runDoctorChecks(options: DoctorCheckOptions): string[] {
 
       if (typeof description !== "string" || description.trim().length === 0) {
         fixes.push(`Fix: Set non-empty frontmatter field \"description\" in ${skillPath}.`);
+      }
+    }
+  }
+
+  if (options.preset === "codex-max") {
+    for (const relativePath of CODEX_MAX_REQUIRED_RELATIVE_PATHS) {
+      const absolutePath = path.resolve(options.root, relativePath);
+      if (!fs.existsSync(absolutePath)) {
+        fixes.push(`Fix: Create ${absolutePath} (run \`execplans init --preset codex-max\`).`);
+      }
+    }
+
+    const codexConfigPath = path.resolve(options.root, ".codex/config.toml");
+    if (fs.existsSync(codexConfigPath)) {
+      const codexConfig = fs.readFileSync(codexConfigPath, "utf8");
+      if (!codexConfig.includes("[mcp_servers.chrome_devtools]")) {
+        fixes.push(
+          `Fix: Add [mcp_servers.chrome_devtools] block to ${codexConfigPath} (or rerun \`execplans init --preset codex-max\`).`,
+        );
+      }
+
+      if (!codexConfig.includes("[mcp_servers.observability]")) {
+        fixes.push(
+          `Fix: Add [mcp_servers.observability] block to ${codexConfigPath} (or rerun \`execplans init --preset codex-max\`).`,
+        );
       }
     }
   }
