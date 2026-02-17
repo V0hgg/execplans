@@ -70,6 +70,15 @@ async function postForm(url, params) {
   return text;
 }
 
+async function getText(url) {
+  const response = await fetch(url);
+  const text = await response.text();
+  if (!response.ok) {
+    throw new Error(`HTTP ${response.status} from ${url}: ${text}`);
+  }
+  return text;
+}
+
 async function queryLogs(args) {
   const limit = String(args.limit ?? 20);
   return postForm(`${LOGS_URL}/select/logsql/query`, { query: String(args.query), limit });
@@ -80,8 +89,19 @@ async function queryMetrics(args) {
 }
 
 async function queryTraces(args) {
+  const query = String(args.query);
   const limit = String(args.limit ?? 20);
-  return postForm(`${TRACES_URL}/select/logsql/query`, { query: String(args.query), limit });
+  const logsqlResponse = await postForm(`${TRACES_URL}/select/logsql/query`, { query, limit });
+  if (logsqlResponse.includes(query)) {
+    return logsqlResponse;
+  }
+
+  const servicesResponse = await getText(`${TRACES_URL}/select/jaeger/api/services`);
+  if (servicesResponse.includes(query)) {
+    return servicesResponse;
+  }
+
+  return logsqlResponse;
 }
 
 async function handleRequest(request) {

@@ -27,11 +27,20 @@ wait_for "metrics" "http://127.0.0.1:8428/health"
 wait_for "traces" "http://127.0.0.1:10428/health"
 
 # 1) Logs check
-printf '{"stream":"smoke","date":"0","log":{"message":"smoke-log-line"}}\n' | \
+printf '{"stream":"smoke","message":"smoke-log-line"}\n' | \
   curl -fsS -X POST -H 'Content-Type: application/stream+json' --data-binary @- \
-  'http://127.0.0.1:9428/insert/jsonline?_stream_fields=stream&_time_field=date&_msg_field=log.message' >/dev/null
+  'http://127.0.0.1:9428/insert/jsonline?_stream_fields=stream&_msg_field=message' >/dev/null
 
-if curl -fsS 'http://127.0.0.1:9428/select/logsql/query' -d 'query=smoke-log-line' -d 'limit=1' | grep -q 'smoke-log-line'; then
+logs_ok=false
+for _ in {1..30}; do
+  if curl -fsS 'http://127.0.0.1:9428/select/logsql/query' -d 'query=smoke-log-line' -d 'limit=1' | grep -q 'smoke-log-line'; then
+    logs_ok=true
+    break
+  fi
+  sleep 1
+done
+
+if [[ "$logs_ok" == "true" ]]; then
   log 'logs query: PASS'
 else
   log 'logs query: FAIL'
@@ -39,7 +48,16 @@ else
 fi
 
 # 2) Metrics check (self-scraped metric from VictoriaMetrics)
-if curl -fsS 'http://127.0.0.1:8428/prometheus/api/v1/query' -d 'query=process_cpu_cores_available' | grep -q '"status":"success"'; then
+metrics_ok=false
+for _ in {1..30}; do
+  if curl -fsS 'http://127.0.0.1:8428/prometheus/api/v1/query' -d 'query=process_cpu_cores_available' | grep -q '"status":"success"'; then
+    metrics_ok=true
+    break
+  fi
+  sleep 1
+done
+
+if [[ "$metrics_ok" == "true" ]]; then
   log 'metrics query: PASS'
 else
   log 'metrics query: FAIL'
@@ -62,14 +80,25 @@ curl -fsS -X POST -H 'Content-Type: application/json' --data-binary @"$BASE_DIR/
 
 rm -f "$BASE_DIR/.trace-payload.json"
 
-if curl -fsS 'http://127.0.0.1:10428/select/jaeger/api/services' | grep -q 'smoke-service'; then
-  log 'traces query: PASS'
-else
+trace_ok=false
+for _ in {1..30}; do
+  if curl -fsS 'http://127.0.0.1:10428/select/jaeger/api/services' | grep -q 'smoke-service'; then
+    trace_ok=true
+    break
+  fi
+
   # Fallback: query via LogsQL-compatible endpoint.
   if curl -fsS 'http://127.0.0.1:10428/select/logsql/query' -d 'query=smoke-service' -d 'limit=1' | grep -q 'smoke-service'; then
-    log 'traces query: PASS'
-  else
-    log 'traces query: FAIL'
-    exit 1
+    trace_ok=true
+    break
   fi
+
+  sleep 1
+done
+
+if [[ "$trace_ok" == "true" ]]; then
+  log 'traces query: PASS'
+else
+  log 'traces query: FAIL'
+  exit 1
 fi

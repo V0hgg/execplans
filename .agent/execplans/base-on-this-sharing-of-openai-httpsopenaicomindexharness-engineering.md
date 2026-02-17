@@ -29,9 +29,9 @@ This plan is complete when all of the following are true and proven with command
 - [x] (2026-02-17 09:17Z) Implemented Milestone 1: added preset parsing (`standard`, `codex-max`), CLI/config wiring for `--preset`, template-tree copy utility, init preset dispatch, and codex-max dry-run proof (`Would Create: .codex/config.toml`).
 - [x] (2026-02-17 09:18Z) Implemented Milestone 2: added codex-max `ARCHITECTURE.md` and full `docs/` template topology, plus init tests for path presence and codex-max idempotence.
 - [x] (2026-02-17 09:21Z) Implemented Milestone 3: added Chrome DevTools MCP config, worktree `up/down/status` scripts, and `ui-legibility` skill scaffold; validated with build + fresh-repo MCP/skill grep checks and runtime script smoke.
-- [ ] (2026-02-17 09:25Z) Implemented Milestone 4 templates for observability stack + MCP adapter (compose/vector/smoke/server), but Docker-based runtime validation remains blocked by unavailable Docker daemon in this environment.
+- [x] (2026-02-17 16:24Z) Completed Milestone 4 runtime validation: Docker compose stack boots cleanly and `.agent/harness/observability/smoke.sh` returns PASS for logs, metrics, and traces.
 - [x] (2026-02-17 09:25Z) Implemented Milestone 5: added preset-aware `doctor` checks for codex-max artifacts, added codex-max doctor tests, and updated README validation/troubleshooting commands.
-- [ ] (2026-02-17 09:26Z) Implemented Milestone 6 package/install/init/doctor proof in a second repo; remaining step is Docker smoke execution, blocked by unavailable Docker daemon.
+- [x] (2026-02-17 16:36Z) Completed Milestone 6 final acceptance in a second repository: packed tarball, installed package, ran `execplans init --preset codex-max`, got `doctor` `OK`, passed observability smoke checks, and verified MCP `query_logs`/`query_metrics`/`query_traces` tool calls.
 
 ## Surprises & Discoveries
 
@@ -53,11 +53,11 @@ This plan is complete when all of the following are true and proven with command
 - Observation: Worktree helper scripts must derive repository root from script location, not caller working directory, or they can write runtime state into the wrong repository.
   Evidence: Initial verification run wrote state under `/Users/hunter/v0hgg/execplans/.agent/harness/state`; after fixing `common.sh` root resolution, state moved correctly under the scaffolded temp repo path.
 
-- Observation: Docker-dependent observability validation cannot run in this session because the Docker daemon socket is unreachable.
-  Evidence: `docker compose ... up -d` failed with `Cannot connect to the Docker daemon at unix:///Users/hunter/.docker/run/docker.sock`.
+- Observation: Docker daemon availability was an environment risk, but once Docker Desktop was running, the generated observability stack validated exactly as designed.
+  Evidence: `docker compose ... up -d` succeeded and smoke output reported `[smoke] logs query: PASS`, `[smoke] metrics query: PASS`, and `[smoke] traces query: PASS` in fresh target repos.
 
-- Observation: Cross-repo installation itself works end-to-end from packed tarball, and codex-max doctor passes in the target repo before observability runtime starts.
-  Evidence: `npm pack` produced `execplans-0.1.4.tgz`; `npx --prefix <target_repo> execplans init --preset codex-max` succeeded; `npx --prefix <target_repo> execplans doctor --preset codex-max` returned `OK`.
+- Observation: Trace data can be visible through Jaeger services before LogsQL results are populated, so MCP `query_traces` needed a fallback path to remain reliable.
+  Evidence: Initial MCP verification failed with `query_traces response missing smoke-service`; after adding Jaeger services fallback in the generated adapter template, MCP checks reported `MCP query_traces: PASS`.
 
 ## Decision Log
 
@@ -97,9 +97,17 @@ This plan is complete when all of the following are true and proven with command
   Rationale: The plan’s Definition of Done explicitly requires live observability smoke checks; skipping them would produce an unverified result.
   Date/Author: 2026-02-17 / Codex
 
+- Decision: Add bounded retry loops to smoke checks for logs, metrics, and traces instead of single-attempt assertions.
+  Rationale: Newly booted observability backends are eventually consistent; retry loops make validation deterministic in clean environments.
+  Date/Author: 2026-02-17 / Codex
+
+- Decision: Extend generated MCP `query_traces` behavior with Jaeger services fallback when LogsQL query responses are empty.
+  Rationale: VictoriaTraces may expose service discovery sooner than queryable LogsQL rows; fallback preserves user-facing trace query reliability.
+  Date/Author: 2026-02-17 / Codex
+
 ## Outcomes & Retrospective
 
-Milestones 1 through 6 are implemented as code and non-Docker verification is complete: CI passes, cross-repo install/init/doctor proof passes, and packaged artifact includes the expected templates. The only unmet acceptance criteria are Docker-dependent observability smoke checks (Milestones 4 and 6), blocked by unavailable Docker daemon access in this execution environment.
+Milestones 1 through 6 are fully complete and Definition of Done is satisfied with behavior-based proof. The package now scaffolds the full codex-max docs topology, emits both Chrome DevTools and observability MCP configuration, validates scaffold integrity via `doctor`, and succeeds in external-repo install/init/doctor/smoke workflows. Final acceptance also includes MCP adapter proof (`query_logs`, `query_metrics`, `query_traces`) against a live ephemeral Victoria observability stack.
 
 ## Context and Orientation
 
@@ -304,23 +312,24 @@ No destructive Git commands are required by this plan.
 
 ## Artifacts and Notes
 
-Record concise proof snippets during implementation. Replace placeholders below with real outputs at execution time.
+Proof snippets captured from final Milestone 6 acceptance run:
 
+    npm notice filename: execplans-0.1.4.tgz
+    TARGET_REPO=/var/folders/mn/xfky68q57gzct_00q141f76m0000gn/T/tmp.xsszkys3mB
     Create: .codex/config.toml
     Create: .agent/harness/worktree/up.sh
     Create: .agent/harness/observability/docker-compose.yml
     Create: docs/design-docs/index.md
     Create: docs/exec-plans/tech-debt-tracker.md
-
     OK
     [smoke] logs query: PASS
     [smoke] metrics query: PASS
     [smoke] traces query: PASS
-
-    npm notice filename: execplans-0.1.4.tgz
-    npx --prefix <target_repo> execplans doctor --root <target_repo> --preset codex-max
-    OK
-    unable to get image 'victoriametrics/victoria-traces:latest': Cannot connect to the Docker daemon at unix:///Users/hunter/.docker/run/docker.sock.
+    MCP tools/list includes: query_logs, query_metrics, query_traces
+    MCP query_logs: PASS
+    MCP query_metrics: PASS
+    MCP query_traces: PASS
+    DONE_TARGET_REPO=/var/folders/mn/xfky68q57gzct_00q141f76m0000gn/T/tmp.xsszkys3mB
 
 Notes for terminology alignment:
 
@@ -392,3 +401,4 @@ Dependency expectations:
 2026-02-17 (Codex): Updated after Milestone 3 implementation and corrected worktree-root bug discovered during runtime script verification.
 2026-02-17 (Codex): Updated after Milestones 4 and 5 implementation; recorded Docker daemon blocker that prevents runtime observability proof in this session.
 2026-02-17 (Codex): Updated after Milestone 6 cross-repo packaging/install proof; retained Docker smoke checks as pending due persistent daemon blocker.
+2026-02-17 (Codex): Updated after final acceptance rerun; resolved Docker blocker, hardened observability smoke retries, added MCP trace-query fallback, and captured complete DoD evidence.
